@@ -136,8 +136,9 @@ For logged in users, they are able to create their own listings (as a host) that
 #### 2.2.4. Publishing a listing
  * For a listing to "go live" means that the listing becomes visible to other AirBrB users on the screen described in ``2.4``.
  * On the hosted listings screen described in ``2.2.1``, add the ability to make an individual listing "go live".
+
  	- A listing must have at least one availability date range (e.g. a listing could be available between 1st and 3rd of November and then between the 5th and 6th of November). 
-	- The way you define the availability ranges is entirely up to you. For example, you could use the following schemas:
+ 	- The way you define the availability ranges is entirely up to you. For example, you could use the following schemas:
 ```javascript
 //Example 1:
 availability: [{ start: date1, end: date2 }, { start: date3, end: date4 }, ...];
@@ -505,7 +506,7 @@ knowledge.
 This assignment is due *Friday 17th November, 10pm*.
 
 To submit your assignment, you must you've pushed all of your code to your gitlab master branch. You can check if you've done this properly by seeing what code is on the gitlab site on your master branch.
- 
+
 We will collect the latest work on your master branch of gitlab at the time of submission.
 
 It is your responsibiltiy to ensure that your code can run successfully when cloned fresh from Gitlab.
