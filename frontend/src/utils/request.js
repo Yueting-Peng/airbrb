@@ -30,11 +30,16 @@ const get = async (url) => {
 }
 
 const post = async (url, data) => {
-  const response = await fetch(`${BASE_URL}${url}`, {
+  console.log(data)
+  const requestOptions = {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify(data),
-  })
+  }
+
+  if (data !== null && data !== undefined) {
+    requestOptions.body = JSON.stringify(data)
+  }
+  const response = await fetch(`${BASE_URL}${url}`, requestOptions)
   return handleResponse(response)
 }
 

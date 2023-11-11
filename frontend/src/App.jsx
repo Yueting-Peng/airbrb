@@ -1,14 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Input, Dropdown } from 'antd'
-import {
-  UserOutlined,
-  MenuOutlined,
-  LoginOutlined,
-  UserAddOutlined,
-  HomeOutlined,
-} from '@ant-design/icons'
+import { Input, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import HomeDropdown from './components/HomeDropdown.jsx'
+import useHttp from './utils/useHttp'
+import AirbrbLogo from './components/logo.jsx'
 
 const { Search } = Input
 
@@ -29,87 +25,67 @@ export const TitleHeader = styled.header`
   height: 80px;
   padding: 0 80px;
   color: #ff385c;
-  border-top: 1px solid #ebebeb;
-  border-bottom: 1px solid #ebebeb;
+  border-top: 1px solid #fdf7ff;
+  border-bottom: 1px solid #fdf7ff;
+  display: flex;
 `
-const HomeHeader = styled(TitleHeader)`
+export const HomeHeader = styled(TitleHeader)`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  color: #1677ff;
+  color: #ff385c;
 `
 const HomeSearch = styled(Search)`
   width: 300px;
   align-self: center;
-`
-const HomeDropdown = styled(Dropdown.Button)`
-  width: 300px;
-  align-self: center;
-  width: auto;
 `
 
 const HomeNavbar = styled.div`
   height: 100px;
   border-bottom: 1px solid #ebebeb;
 `
+
 const ListingPane = styled.main``
 const App = () => {
+  const isLogin = () => {
+    return !!localStorage.getItem('token')
+  }
+  const { error, request } = useHttp()
   const navigate = useNavigate()
   const onSearch = (value, _e, info) => console.log(info?.source, value)
-  const handleMenuClick = (e) => {
-    // message.info('Click on menu item.')
+  const handleMenuClick = async (e) => {
     console.log('click', e)
-    navigate(`/${e.key}`)
+    if (e.key === 'logout') {
+      const isConfirmed = confirm(
+        'Are you sure you want to log out of your current account?'
+      )
+      if (!isConfirmed) return
+      await request('post', '/user/auth/logout')
+      localStorage.removeItem('token')
+      navigate('/dashboard')
+    } else {
+      navigate(`/${e.key}`)
+    }
   }
+  React.useEffect(() => {
+    if (error) {
+      message.open({
+        type: 'error',
+        content: error.message || 'Logout failed!',
+      })
+    }
+  }, [error])
 
-  const items = [
-    {
-      label: 'Sign up',
-      key: 'register',
-      icon: <UserAddOutlined />,
-    },
-    {
-      label: 'Log in',
-      key: 'login',
-      icon: <LoginOutlined />,
-    },
-    {
-      label: '3rd menu item',
-      key: '3',
-      icon: <UserOutlined />,
-      danger: true,
-    },
-    {
-      label: '4rd menu item',
-      key: '4',
-      icon: <UserOutlined />,
-      danger: true,
-      disabled: true,
-    },
-  ]
-  const menuProps = {
-    items,
-    onClick: handleMenuClick,
-  }
   return (
     <Homepage>
       <HomeHeader>
-        <h2>
-          <HomeOutlined />
-          &nbsp; airbrb
-        </h2>
+        <AirbrbLogo />
         <HomeSearch
           placeholder="input search text"
           onSearch={onSearch}
           enterButton
         />
-        <HomeDropdown
-          menu={menuProps}
-          placement="bottom"
-          icon={<UserOutlined />}
-        >
-          <MenuOutlined />
-        </HomeDropdown>
+        <HomeDropdown isLogin={isLogin} handleMenuClick={handleMenuClick} />
       </HomeHeader>
       <HomeNavbar></HomeNavbar>
       <ListingPane></ListingPane>

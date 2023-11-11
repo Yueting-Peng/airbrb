@@ -1,12 +1,13 @@
 import React from 'react'
-import { Form, Input, Button, Checkbox } from 'antd'
+import useHttp from '../utils/useHttp'
+import { Form, Input, Button, Checkbox, message } from 'antd'
 import styled from 'styled-components'
 import arrowIcon from '../assets/arrow-up-right.svg'
 import loginImg from '../assets/login_background.jpeg'
 import loginImgSmall from '../assets/login_background_small.jpg'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { TitleHeader } from '../App'
-import { HomeOutlined } from '@ant-design/icons'
+import AirbrbLogo from '../components/logo.jsx'
 
 const LoginPage = styled.div`
   box-sizing: border-box;
@@ -46,37 +47,63 @@ const StyledButton = styled(Button)`
 `
 const LoginPane = styled.div`
   display: flex;
-  height: 70%;
+  height: 60%;
   flex-direction: column;
-  background-color: rgba(245, 249, 255, 0.6);
+  background-color: rgba(223, 241, 255, 0.7);
   align-items: center;
   padding: 100px;
   border-radius: 30px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 
   margin: auto;
   @media (max-width: 750px) {
     padding: 0;
     margin-top: 30px;
     background-color: transparent;
+    box-shadow: none;
   }
 `
 
 const Login = () => {
-  const onFinish = (values) => {
-    console.log('Success:', values)
+  const { isLoading, error, data, request } = useHttp()
+  const navigate = useNavigate()
+  const [userEmail, setUserEmail] = React.useState('')
+  const onFinish = async (values) => {
+    const { email, password } = values
+    setUserEmail(email)
+    await request('post', '/user/auth/login', { email, password })
   }
 
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
+    const errorContent = errorInfo.errorFields[0].errors[0]
+    message.open({
+      type: 'error',
+      content: errorContent,
+    })
   }
+
+  React.useEffect(() => {
+    if (error) {
+      message.open({
+        type: 'error',
+        content: error.message || 'Login failed!',
+      })
+    }
+    if (data && data.token) {
+      message.open({
+        type: 'success',
+        content: 'Logged in successfully!',
+      })
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('email', userEmail)
+      navigate('/dashboard')
+    }
+  }, [error, data, navigate, userEmail])
 
   return (
     <>
       <TitleHeader>
-        <h2>
-          <HomeOutlined />
-          &nbsp; airbrb
-        </h2>
+        <AirbrbLogo />
       </TitleHeader>
       <LoginPage>
         <LoginPane>
@@ -107,8 +134,12 @@ const Login = () => {
               <Checkbox>Remember me</Checkbox>
             </Form.Item>
             <Form.Item>
-              <StyledButton type="primary" htmlType="submit">
-                Login
+              <StyledButton
+                type="primary"
+                htmlType="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Logging in...' : 'Login'}
               </StyledButton>
             </Form.Item>
           </StyledForm>

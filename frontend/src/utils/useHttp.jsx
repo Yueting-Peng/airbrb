@@ -1,25 +1,24 @@
-
-import { useState } from 'react';
-import http from './request';
+import { useState } from 'react'
+import http from './request'
 
 const useHttp = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [data, setData] = useState(null)
 
   const request = async (requestType, url, requestData = null) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const response = await http[requestType](url, requestData);
-      setData(response);
-      setIsLoading(false);
+      const response = await http[requestType](url, requestData)
+      setData(response)
+      setIsLoading(false)
     } catch (err) {
-      setError(err);
-      setIsLoading(false);
+      setError(err)
+      setIsLoading(false)
     }
-  };
+  }
 
-  return { isLoading, error, data, request };
-};
+  return { isLoading, error, data, request }
+}
 
-export default useHttp;
+export default useHttp

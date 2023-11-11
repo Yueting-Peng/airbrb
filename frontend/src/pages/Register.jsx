@@ -1,11 +1,13 @@
 import React from 'react'
-import { Form, Input, Button } from 'antd'
+import useHttp from '../utils/useHttp'
+import { Form, Input, Button, message } from 'antd'
 import styled from 'styled-components'
 import arrowIcon from '../assets/arrow-up-right.svg'
 import registerImg from '../assets/register_img.jpeg'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { TitleHeader } from '../App'
-import { HomeOutlined } from '@ant-design/icons'
+import AirbrbLogo from '../components/logo.jsx'
+
 // Styled Components
 const RegisterPage = styled.div`
   box-sizing: border-box;
@@ -17,7 +19,7 @@ const RegisterPage = styled.div`
   padding-top: 100px;
   gap: 50px;
 
-  background-color: #f1eff0;
+  background-color: #f2f0f1;
   @media (max-width: 950px) {
     flex-direction: column;
     padding: 10px;
@@ -59,18 +61,51 @@ const RegisterButton = styled(Button)`
   width: 100%;
   max-width: 300px;
   color: white;
-  background-color: #ff385c;
-  border-color: #ff385c;
 `
 
 const Register = () => {
+  const { isLoading, error, data, request } = useHttp()
+  const [email, setEmail] = React.useState('')
+  const [name, setName] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  const [confirmPassword, setConfirmPassword] = React.useState('')
+  const navigate = useNavigate()
+  React.useEffect(() => {
+    if (error) {
+      message.open({
+        type: 'error',
+        content: error.message || 'Registration failed!',
+      })
+    }
+    if (data && data.token) {
+      message.open({
+        type: 'success',
+        content: 'Registered successfully!',
+      })
+      localStorage.setItem('token', data.token)
+      navigate('/dashboard')
+    }
+  }, [error, data, navigate])
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    console.log(email, password, name)
+
+    if (!email || !name || !password || !confirmPassword) {
+      message.open({ type: 'warning', content: 'All fields are required!' })
+      return
+    }
+
+    if (password !== confirmPassword) {
+      message.open({ type: 'error', content: 'Passwords do not match!' })
+      return
+    }
+    await request('post', '/user/auth/register', { email, password, name })
+  }
   return (
     <>
       <TitleHeader>
-        <h2>
-          <HomeOutlined />&nbsp;
-          airbrb
-        </h2>
+        <AirbrbLogo />
       </TitleHeader>
       <RegisterPage>
         <FormWrapper>
@@ -78,20 +113,31 @@ const Register = () => {
           <p>Welcome to AirBrB! 🏠</p>
           <SignupForm id="signup-form">
             <Form.Item label="Email address" name="email">
-              <Input type="email" />
+              <Input value={email} onChange={(e) => setEmail(e.target.value)} />
             </Form.Item>
             <Form.Item label="Name" name="name">
-              <Input />
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
             </Form.Item>
             <Form.Item label="Password" name="password">
-              <Input.Password />
+              <Input.Password
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </Form.Item>
             <Form.Item label="Confirm Password" name="confirmPassword">
-              <Input.Password />
+              <Input.Password
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
             </Form.Item>
             <Form.Item>
-              <RegisterButton type="primary" danger htmlType="submit">
-                Signup Now
+              <RegisterButton
+                type="primary"
+                htmlType="submit"
+                disabled={isLoading}
+                onClick={handleSubmit}
+              >
+                {isLoading ? 'Signing Up...' : 'Signup Now'}
               </RegisterButton>
             </Form.Item>
           </SignupForm>
