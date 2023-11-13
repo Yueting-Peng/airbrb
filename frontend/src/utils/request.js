@@ -43,12 +43,17 @@ const post = async (url, data) => {
   return handleResponse(response)
 }
 
-const put = async (url, data) => {
-  const response = await fetch(`${BASE_URL}${url}`, {
+const put = async (url, data = {}) => {
+  const config = {
     method: 'PUT',
     headers: getHeaders(),
-    body: JSON.stringify(data),
-  })
+  }
+
+  if (Object.keys(data).length > 0) {
+    config.body = JSON.stringify(data)
+  }
+
+  const response = await fetch(`${BASE_URL}${url}`, config)
   return handleResponse(response)
 }
 

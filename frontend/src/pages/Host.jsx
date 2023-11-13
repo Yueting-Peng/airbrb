@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { MenuOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
-import CreateListing from '../components/CreateListing'
+import { Outlet, useNavigate } from 'react-router-dom'
 import HostSidebar from '../components/HostNavBar'
 import SidebarMenu from '../components/HostSidebarMenu'
 import AirbrbLogo from '../components/logo.jsx'
@@ -39,7 +39,8 @@ const HostMain = styled.main`
   display: flex;
 `
 const HostMenuBig = styled.aside`
-  width: 25%;
+  width: 20%;
+  min-width: 230px;
   @media (max-width: 950px) {
     display: none;
   }
@@ -50,16 +51,23 @@ const HostMainRight = styled.div`
 `
 
 const Host = () => {
+  const navigate = useNavigate()
   const [drawerVisible, setDrawerVisible] = React.useState(false)
-  const [isListingVisible, setIsListingVisible] = React.useState(false)
+
   const handleCreateListingClick = () => {
-    setIsListingVisible(true)
+    navigate('/hosting/create-listing')
+  }
+  const handleMyListingsClick = () => {
+    navigate('/hosting/my-listings')
+  }
+  const goHome = () => {
+    navigate('/')
   }
 
   return (
     <HostPage>
       <HostHeader>
-        <AirbrbLogo />
+        <AirbrbLogo onClick={goHome} />
         <h2>Hosting</h2>
         <MenuBtn type="primary" onClick={() => setDrawerVisible(true)}>
           <MenuOutlined />
@@ -67,14 +75,20 @@ const Host = () => {
       </HostHeader>
       <HostMain>
         <HostMenuBig>
-          <SidebarMenu onCreateListingClick={handleCreateListingClick} />
+          <SidebarMenu
+            onCreateListingClick={handleCreateListingClick}
+            handleMyListingsClick={handleMyListingsClick}
+          />
         </HostMenuBig>
         <HostSidebar
           drawerVisible={drawerVisible}
           setDrawerVisible={setDrawerVisible}
           onCreateListingClick={handleCreateListingClick}
+          handleMyListingsClick={handleMyListingsClick}
         />
-        <HostMainRight>{isListingVisible && <CreateListing />}</HostMainRight>
+        <HostMainRight>
+          <Outlet />
+        </HostMainRight>
       </HostMain>
     </HostPage>
   )

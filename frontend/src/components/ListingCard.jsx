@@ -1,5 +1,6 @@
 import React from 'react'
 import { Carousel, Card } from 'antd'
+import styled from 'styled-components'
 import {
   HeartOutlined,
   EnvironmentOutlined,
@@ -7,58 +8,89 @@ import {
   DollarOutlined,
   StarFilled,
 } from '@ant-design/icons'
+import http from '../utils/request'
 
-const ListingCard = ({ images, listing, onCardClick }) => {
-  const validImages = Array.isArray(images) ? images : []
+// Styled components
+const StyledCard = styled(Card)`
+  max-width: 100%;
+  cursor: pointer;
+`
+
+const StyledImage = styled.img`
+  width: 100%;
+  border-radius: 10px;
+`
+
+const Content = styled.div`
+  padding: 15px;
+`
+
+const InfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const ListingCard = ({ listing, onCardClick }) => {
+  const [validImages, setValidImages] = React.useState([])
+
+  React.useEffect(() => {
+    http.get(`/listings/${listing.id}`).then((response) => {
+      let imagesArray = []
+
+      if (listing.thumbnail) {
+        imagesArray.push(listing.thumbnail)
+      }
+
+      const images = response.listing.metadata.images
+
+      if (Array.isArray(images)) {
+        imagesArray = [...imagesArray, ...images]
+      } else if (images != null) {
+        imagesArray.push(images)
+      }
+
+      setValidImages(imagesArray)
+    })
+  }, [listing.id, listing.thumbnail])
+
   return (
-    <div onClick={onCardClick} style={{ cursor: 'pointer' }}>
-      <Card hoverable>
-        <Carousel autoplay>
-          {validImages.map((image, index) => (
-            <div key={index}>
-              <img
-                src={image}
-                alt={`Listing ${index + 1}`}
-                style={{ width: '100%' }}
-              />
-            </div>
-          ))}
-        </Carousel>
-        <div style={{ padding: '15px' }}>
-          <h3>{listing.title}</h3>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <HeartOutlined />
-            <span>
-              <EnvironmentOutlined /> {listing.location}
-            </span>
-            <span>
-              <CalendarOutlined /> {listing.dates}
-            </span>
+    <StyledCard hoverable onClick={onCardClick}>
+      <Carousel autoplay>
+        {validImages.map((image, index) => (
+          <div key={index}>
+            <StyledImage src={image} alt={`Listing ${index + 1}`} />
           </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <span>
-              <DollarOutlined /> {listing.price}
-            </span>
-            <span>
-              <StarFilled style={{ color: '#ffbc02' }} />
-              {listing.rating}
-            </span>
-          </div>
-        </div>
-      </Card>
-    </div>
+        ))}
+      </Carousel>
+      <Content>
+        <h3>{listing.title}</h3>
+        <HeartOutlined />
+        <InfoRow>
+          <span>
+            <EnvironmentOutlined />{' '}
+            {`${listing.address.city}, ${listing.address.country}`}
+          </span>
+          <span>
+            <CalendarOutlined /> {listing.dates}
+          </span>
+        </InfoRow>
+        <br />
+        <InfoRow>
+          <span>
+            <DollarOutlined /> {listing.price} per night
+          </span>
+        </InfoRow>
+        <br />
+        <InfoRow>
+          {' '}
+          <span>
+            <StarFilled /> Total reviews:{' '}
+            {Array.isArray(listing.reviews) ? listing.reviews.length : 0}
+          </span>
+        </InfoRow>
+      </Content>
+    </StyledCard>
   )
 }
 

@@ -1,14 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Input, message } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { message } from 'antd'
+import { Outlet, useNavigate } from 'react-router-dom'
 import HomeDropdown from './components/HomeDropdown.jsx'
 import useHttp from './utils/useHttp'
 import AirbrbLogo from './components/logo.jsx'
 
-const { Search } = Input
-
-const Homepage = styled.div`
+const OuterContainer = styled.div`
   box-sizing: border-box;
   min-height: 100vh;
   width: 100%;
@@ -21,38 +19,25 @@ const Homepage = styled.div`
     padding: 10px;
   }
 `
+
 export const TitleHeader = styled.header`
   height: 80px;
-  padding: 0 80px;
-  color: #ff385c;
+  padding: 0 50px;
   border-top: 1px solid #fdf7ff;
   border-bottom: 1px solid #fdf7ff;
+
   display: flex;
-`
-export const HomeHeader = styled(TitleHeader)`
-  display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  color: #ff385c;
-`
-const HomeSearch = styled(Search)`
-  width: 300px;
-  align-self: center;
+  align-items: center;
 `
 
-const HomeNavbar = styled.div`
-  height: 100px;
-  border-bottom: 1px solid #ebebeb;
-`
-
-const ListingPane = styled.main``
+const Main = styled.main``
 const App = () => {
   const isLogin = () => {
     return !!localStorage.getItem('token')
   }
   const { error, request } = useHttp()
   const navigate = useNavigate()
-  const onSearch = (value, _e, info) => console.log(info?.source, value)
   const handleMenuClick = async (e) => {
     console.log('click', e)
     if (e.key === 'logout') {
@@ -75,21 +60,20 @@ const App = () => {
       })
     }
   }, [error])
+  const goHome = () => {
+    navigate('/')
+  }
 
   return (
-    <Homepage>
-      <HomeHeader>
-        <AirbrbLogo />
-        <HomeSearch
-          placeholder="input search text"
-          onSearch={onSearch}
-          enterButton
-        />
+    <OuterContainer>
+      <TitleHeader>
+        <AirbrbLogo onClick={goHome} />
         <HomeDropdown isLogin={isLogin} handleMenuClick={handleMenuClick} />
-      </HomeHeader>
-      <HomeNavbar></HomeNavbar>
-      <ListingPane></ListingPane>
-    </Homepage>
+      </TitleHeader>
+      <Main>
+        <Outlet />
+      </Main>
+    </OuterContainer>
   )
 }
 

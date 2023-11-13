@@ -14,7 +14,6 @@ import styled from 'styled-components'
 const StyledMenuItem = styled(Menu.Item)`
   color: #574141;
   @media (min-width: 950px) {
-    font-size: 16px;
     .anticon {
       margin-right: 5px;
     }
@@ -28,14 +27,18 @@ const StyledMenu = styled(Menu)`
   flex-direction: column;
   gap: 15px;
 `
-const SidebarMenu = ({ onMenuItemClick, onCreateListingClick }) => {
+const SidebarMenu = ({
+  onMenuItemClick,
+  onCreateListingClick,
+  handleMyListingsClick,
+}) => {
   return (
     <StyledMenu onClick={onMenuItemClick} mode="inline">
       <StyledMenuItem key="1">
         <UnorderedListOutlined />
         &nbsp;&nbsp;View all listings
       </StyledMenuItem>
-      <StyledMenuItem key="2">
+      <StyledMenuItem key="2" onClick={handleMyListingsClick}>
         <ViewList />
         &nbsp;&nbsp;&nbsp;My listings
       </StyledMenuItem>

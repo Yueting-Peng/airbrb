@@ -3,11 +3,9 @@ import useHttp from '../utils/useHttp'
 import { Form, Input, Button, Checkbox, message } from 'antd'
 import styled from 'styled-components'
 import arrowIcon from '../assets/arrow-up-right.svg'
-import loginImg from '../assets/login_background.jpeg'
-import loginImgSmall from '../assets/login_background_small.jpg'
+import loginImg from '../assets/login_bgimg.jpg'
+import loginImgSmall from '../assets/login_bg_small.jpg'
 import { Link, useNavigate } from 'react-router-dom'
-import { TitleHeader } from '../App'
-import AirbrbLogo from '../components/logo.jsx'
 
 const LoginPage = styled.div`
   box-sizing: border-box;
@@ -49,7 +47,7 @@ const LoginPane = styled.div`
   display: flex;
   height: 60%;
   flex-direction: column;
-  background-color: rgba(223, 241, 255, 0.7);
+  background-color: rgba(253, 243, 243, 0.7);
   align-items: center;
   padding: 100px;
   border-radius: 30px;
@@ -101,60 +99,50 @@ const Login = () => {
   }, [error, data, navigate, userEmail])
 
   return (
-    <>
-      <TitleHeader>
-        <AirbrbLogo />
-      </TitleHeader>
-      <LoginPage>
-        <LoginPane>
-          <StyledForm
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            layout="vertical"
+    <LoginPage>
+      <LoginPane>
+        <StyledForm
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          layout="vertical"
+        >
+          <h1>Login</h1>
+          <p>Hi, Welcome back 👋</p>
+          <Form.Item
+            label="Email address"
+            name="email"
+            rules={[{ required: true, message: 'Please input your email!' }]}
           >
-            <h1>Login</h1>
-            <p>Hi, Welcome back 👋</p>
-            <Form.Item
-              label="Email address"
-              name="email"
-              rules={[{ required: true, message: 'Please input your email!' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Password"
-              name="password"
-              rules={[
-                { required: true, message: 'Please input your password!' },
-              ]}
-            >
-              <Input.Password />
-            </Form.Item>
-            <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox>Remember me</Checkbox>
-            </Form.Item>
-            <Form.Item>
-              <StyledButton
-                type="primary"
-                htmlType="submit"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Logging in...' : 'Login'}
-              </StyledButton>
-            </Form.Item>
-          </StyledForm>
-          <RegisterLink>
-            Not registered yet?
-            <Link to={'/register'}>
-              <a>
-                Create an account
-                <img src={arrowIcon} alt="arrow icon" />
-              </a>
-            </Link>
-          </RegisterLink>
-        </LoginPane>
-      </LoginPage>
-    </>
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: 'Please input your password!' }]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item name="remember" valuePropName="checked" noStyle>
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
+          <Form.Item>
+            <StyledButton type="primary" htmlType="submit" disabled={isLoading}>
+              {isLoading ? 'Logging in...' : 'Login'}
+            </StyledButton>
+          </Form.Item>
+        </StyledForm>
+        <RegisterLink>
+          Not registered yet?
+          <Link to={'/register'}>
+            <a>
+              {' '}
+              Create an account
+              <img src={arrowIcon} alt="arrow icon" />
+            </a>
+          </Link>
+        </RegisterLink>
+      </LoginPane>
+    </LoginPage>
   )
 }
 

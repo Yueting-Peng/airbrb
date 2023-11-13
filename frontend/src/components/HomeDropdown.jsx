@@ -6,15 +6,16 @@ import {
   LoginOutlined,
   UserAddOutlined,
   ExportOutlined,
-  MenuOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons'
+import SearchComponent from './SearchComponent'
 
 const HomeDropdownStyled = styled(Dropdown.Button)`
   align-self: center;
   display: flex;
   justify-content: flex-end;
   width: auto;
+  margin-right: 20px;
 `
 
 const HomeDropdown = ({ isLogin, handleMenuClick }) => {
@@ -60,7 +61,7 @@ const HomeDropdown = ({ isLogin, handleMenuClick }) => {
       placement="bottom"
       icon={isLogin() ? <UserOutlined /> : <LoginOutlined />}
     >
-      <MenuOutlined />
+      <SearchComponent />
     </HomeDropdownStyled>
   )
 }

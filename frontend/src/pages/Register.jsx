@@ -5,8 +5,6 @@ import styled from 'styled-components'
 import arrowIcon from '../assets/arrow-up-right.svg'
 import registerImg from '../assets/register_img.jpeg'
 import { Link, useNavigate } from 'react-router-dom'
-import { TitleHeader } from '../App'
-import AirbrbLogo from '../components/logo.jsx'
 
 // Styled Components
 const RegisterPage = styled.div`
@@ -103,59 +101,54 @@ const Register = () => {
     await request('post', '/user/auth/register', { email, password, name })
   }
   return (
-    <>
-      <TitleHeader>
-        <AirbrbLogo />
-      </TitleHeader>
-      <RegisterPage>
-        <FormWrapper>
-          <h1>Create new account</h1>
-          <p>Welcome to AirBrB! 🏠</p>
-          <SignupForm id="signup-form">
-            <Form.Item label="Email address" name="email">
-              <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-            </Form.Item>
-            <Form.Item label="Name" name="name">
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
-            </Form.Item>
-            <Form.Item label="Password" name="password">
-              <Input.Password
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Form.Item>
-            <Form.Item label="Confirm Password" name="confirmPassword">
-              <Input.Password
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </Form.Item>
-            <Form.Item>
-              <RegisterButton
-                type="primary"
-                htmlType="submit"
-                disabled={isLoading}
-                onClick={handleSubmit}
-              >
-                {isLoading ? 'Signing Up...' : 'Signup Now'}
-              </RegisterButton>
-            </Form.Item>
-          </SignupForm>
-          <p>
-            Already have an account?
-            <Link to={'/login'}>
-              <a>
-                Login
-                <img src={arrowIcon} alt="arrow icon" />
-              </a>
-            </Link>
-          </p>
-        </FormWrapper>
-        <ImageWrapper>
-          <RegisterImg src={registerImg} alt="Register" />
-        </ImageWrapper>
-      </RegisterPage>
-    </>
+    <RegisterPage>
+      <FormWrapper>
+        <h1>Create new account</h1>
+        <p>Welcome to AirBrB! 🏠</p>
+        <SignupForm id="signup-form">
+          <Form.Item label="Email address" name="email">
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Form.Item>
+          <Form.Item label="Name" name="name">
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          </Form.Item>
+          <Form.Item label="Password" name="password">
+            <Input.Password
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item label="Confirm Password" name="confirmPassword">
+            <Input.Password
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item>
+            <RegisterButton
+              type="primary"
+              htmlType="submit"
+              disabled={isLoading}
+              onClick={handleSubmit}
+            >
+              {isLoading ? 'Signing Up...' : 'Signup Now'}
+            </RegisterButton>
+          </Form.Item>
+        </SignupForm>
+        <p>
+          Already have an account?
+          <Link to={'/login'}>
+            <a>
+              Login
+              <img src={arrowIcon} alt="arrow icon" />
+            </a>
+          </Link>
+        </p>
+      </FormWrapper>
+      <ImageWrapper>
+        <RegisterImg src={registerImg} alt="Register" />
+      </ImageWrapper>
+    </RegisterPage>
   )
 }
 

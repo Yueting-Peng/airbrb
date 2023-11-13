@@ -5,9 +5,10 @@ const StyledAirbrbLogo = styled.img`
   width: 80px;
   height: fit-content;
   align-self: center;
+  cursor: pointer;
 `
-const AirbrbLogo = () => {
-  return <StyledAirbrbLogo src={Logo} alt="logo" />
+const AirbrbLogo = ({ onClick }) => {
+  return <StyledAirbrbLogo src={Logo} alt="logo" onClick={onClick} />
 }
 
 export default AirbrbLogo

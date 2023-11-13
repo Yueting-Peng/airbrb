@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import http from './request'
 
 const useHttp = () => {
@@ -6,7 +6,7 @@ const useHttp = () => {
   const [error, setError] = useState(null)
   const [data, setData] = useState(null)
 
-  const request = async (requestType, url, requestData = null) => {
+  const request = useCallback(async (requestType, url, requestData = null) => {
     setIsLoading(true)
     try {
       const response = await http[requestType](url, requestData)
@@ -16,7 +16,7 @@ const useHttp = () => {
       setError(err)
       setIsLoading(false)
     }
-  }
+  }, [])
 
   return { isLoading, error, data, request }
 }
