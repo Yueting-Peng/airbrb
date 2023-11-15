@@ -22,47 +22,64 @@ const handleResponse = (response) => {
 }
 
 const get = async (url) => {
-  const response = await fetch(`${BASE_URL}${url}`, {
-    method: 'GET',
-    headers: getHeaders(),
-  })
-  return handleResponse(response)
+  try {
+    const response = await fetch(`${BASE_URL}${url}`, {
+      method: 'GET',
+      headers: getHeaders(),
+    })
+    return await handleResponse(response)
+  } catch (error) {
+    console.error('GET request failed:', error)
+    throw error
+  }
 }
 
 const post = async (url, data) => {
-  console.log(data)
-  const requestOptions = {
-    method: 'POST',
-    headers: getHeaders(),
-  }
+  try {
+    const requestOptions = {
+      method: 'POST',
+      headers: getHeaders(),
+    }
 
-  if (data !== null && data !== undefined) {
-    requestOptions.body = JSON.stringify(data)
+    if (data !== null && data !== undefined) {
+      requestOptions.body = JSON.stringify(data)
+    }
+    const response = await fetch(`${BASE_URL}${url}`, requestOptions)
+    return await handleResponse(response)
+  } catch (error) {
+    console.error('POST request failed:', error)
+    throw error
   }
-  const response = await fetch(`${BASE_URL}${url}`, requestOptions)
-  return handleResponse(response)
 }
 
 const put = async (url, data = {}) => {
-  const config = {
-    method: 'PUT',
-    headers: getHeaders(),
+  try {
+    const requestOptions = {
+      method: 'PUT',
+      headers: getHeaders(),
+    }
+    if (Object.keys(data).length > 0) {
+      requestOptions.body = JSON.stringify(data)
+    }
+    const response = await fetch(`${BASE_URL}${url}`, requestOptions)
+    return await handleResponse(response)
+  } catch (error) {
+    console.error('PUT request failed:', error)
+    throw error
   }
-
-  if (Object.keys(data).length > 0) {
-    config.body = JSON.stringify(data)
-  }
-
-  const response = await fetch(`${BASE_URL}${url}`, config)
-  return handleResponse(response)
 }
 
 const deleteRequest = async (url) => {
-  const response = await fetch(`${BASE_URL}${url}`, {
-    method: 'DELETE',
-    headers: getHeaders(),
-  })
-  return handleResponse(response)
+  try {
+    const response = await fetch(`${BASE_URL}${url}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    })
+    return await handleResponse(response)
+  } catch (error) {
+    console.error('DELETE request failed:', error)
+    throw error
+  }
 }
 
 const http = {

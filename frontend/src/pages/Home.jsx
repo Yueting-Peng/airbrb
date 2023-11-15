@@ -6,6 +6,9 @@ import { Outlet } from 'react-router-dom'
 const MainContainer = styled.section`
   width: 100%;
   overflow: auto;
+  display: flex;
+  justify-content: center;
+  margin: auto;
 `
 const Home = () => {
   return (

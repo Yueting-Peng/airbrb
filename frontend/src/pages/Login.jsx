@@ -94,7 +94,7 @@ const Login = () => {
       })
       localStorage.setItem('token', data.token)
       localStorage.setItem('email', userEmail)
-      navigate('/dashboard')
+      navigate('/')
     }
   }, [error, data, navigate, userEmail])
 

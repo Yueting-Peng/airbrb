@@ -3,13 +3,29 @@ import App from './App'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import Host from './pages/Host'
-import Dashboard from './pages/Dashboard'
 import Home from './pages/Home'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, useLocation, Navigate } from 'react-router-dom'
 import CreateListing from './components/CreateListing'
 import AllListings from './components/AllListings'
 import MyListings from './components/MyListings'
 import EditListing from './components/EditListing'
+import ViewListingDetail from './components/ViewListingDetail'
+import SearchResults from './components/SearchResults'
+import ManageBooking from './components/ManageBooking'
+import { message } from 'antd'
+
+const RequireAuth = ({ children }) => {
+  const location = useLocation()
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    message.warning('You must be logged in to access hosting page.')
+
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  return children
+}
 
 const router = createBrowserRouter([
   {
@@ -25,8 +41,12 @@ const router = createBrowserRouter([
             element: <AllListings />,
           },
           {
-            path: 'all-listings',
-            element: <AllListings />,
+            path: 'detail/:listingId',
+            element: <ViewListingDetail />,
+          },
+          {
+            path: 'search',
+            element: <SearchResults />,
           },
         ],
       },
@@ -38,16 +58,20 @@ const router = createBrowserRouter([
         path: 'register',
         element: <Register />,
       },
-      {
-        path: 'dashboard',
-        element: <Dashboard />,
-      },
     ],
   },
   {
     path: '/hosting',
-    element: <Host />,
+    element: (
+      <RequireAuth>
+        <Host />
+      </RequireAuth>
+    ),
     children: [
+      {
+        path: '',
+        element: <MyListings />,
+      },
       {
         path: 'create-listing',
         element: <CreateListing />,
@@ -59,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: 'edit/:listingId',
         element: <EditListing />,
+      },
+      {
+        path: 'manage-booking/:listingId',
+        element: <ManageBooking />,
       },
     ],
   },

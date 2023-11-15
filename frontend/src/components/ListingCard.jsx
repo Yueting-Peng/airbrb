@@ -8,17 +8,20 @@ import {
   DollarOutlined,
   StarFilled,
 } from '@ant-design/icons'
-import http from '../utils/request'
 
 // Styled components
 const StyledCard = styled(Card)`
   max-width: 100%;
   cursor: pointer;
+  height: fit-content;
+  position: relative;
 `
 
 const StyledImage = styled.img`
   width: 100%;
+  height: 250px;
   border-radius: 10px;
+  object-fit: cover;
 `
 
 const Content = styled.div`
@@ -29,30 +32,22 @@ const InfoRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 8px;
+`
+const StyledHeartOutlined = styled(HeartOutlined)`
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  cursor: pointer;
+  color: white;
+  font-size: large;
 `
 
 const ListingCard = ({ listing, onCardClick }) => {
-  const [validImages, setValidImages] = React.useState([])
-
-  React.useEffect(() => {
-    http.get(`/listings/${listing.id}`).then((response) => {
-      let imagesArray = []
-
-      if (listing.thumbnail) {
-        imagesArray.push(listing.thumbnail)
-      }
-
-      const images = response.listing.metadata.images
-
-      if (Array.isArray(images)) {
-        imagesArray = [...imagesArray, ...images]
-      } else if (images != null) {
-        imagesArray.push(images)
-      }
-
-      setValidImages(imagesArray)
-    })
-  }, [listing.id, listing.thumbnail])
+  const validImages = listing.metadata.images || []
+  if (listing.thumbnail) {
+    validImages.unshift(listing.thumbnail)
+  }
 
   return (
     <StyledCard hoverable onClick={onCardClick}>
@@ -65,7 +60,7 @@ const ListingCard = ({ listing, onCardClick }) => {
       </Carousel>
       <Content>
         <h3>{listing.title}</h3>
-        <HeartOutlined />
+        <StyledHeartOutlined />
         <InfoRow>
           <span>
             <EnvironmentOutlined />{' '}
@@ -75,13 +70,11 @@ const ListingCard = ({ listing, onCardClick }) => {
             <CalendarOutlined /> {listing.dates}
           </span>
         </InfoRow>
-        <br />
         <InfoRow>
           <span>
             <DollarOutlined /> {listing.price} per night
           </span>
         </InfoRow>
-        <br />
         <InfoRow>
           {' '}
           <span>

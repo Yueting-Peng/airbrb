@@ -29,6 +29,9 @@ export const TitleHeader = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  @media (max-width: 850px) {
+    padding: 0;
+  }
 `
 
 const Main = styled.main``
@@ -47,7 +50,7 @@ const App = () => {
       if (!isConfirmed) return
       await request('post', '/user/auth/logout')
       localStorage.removeItem('token')
-      navigate('/dashboard')
+      navigate('/')
     } else {
       navigate(`/${e.key}`)
     }
@@ -60,6 +63,7 @@ const App = () => {
       })
     }
   }, [error])
+
   const goHome = () => {
     navigate('/')
   }

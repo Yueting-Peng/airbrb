@@ -11,41 +11,38 @@ const MiddleNavBar = () => {
   const navigate = useNavigate()
   const [current, setCurrent] = useState('all')
   useEffect(() => {
-    navigate('/all-listings')
+    navigate('/')
   }, [navigate])
 
   const onClick = (e) => {
     console.log('click ', e)
     setCurrent(e.key)
     if (e.key === 'all') {
-      navigate('/all-listings')
+      navigate('/')
     }
     if (e.key === 'host') {
       navigate('/hosting')
     }
     if (e.key === 'setting') {
-      navigate('/all-listings')
+      navigate('/')
     }
   }
 
   const items = [
     {
-      label: 'View all listings',
+      label: 'All published listings',
       key: 'all',
       icon: <UnorderedListOutlined />,
-      disabled: current === 'all',
     },
     {
       label: 'Switch to hosting',
       key: 'host',
       icon: <AppstoreOutlined />,
-      disabled: current === 'host',
     },
     {
       label: 'Navigation Three',
       key: 'setting',
       icon: <SettingOutlined />,
-      disabled: current === 'setting',
     },
   ]
 

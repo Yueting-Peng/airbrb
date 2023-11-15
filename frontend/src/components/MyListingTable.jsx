@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Space, Table, Image, message } from 'antd'
 import StarRating from './StarRating'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { EditOutlined, DeleteOutlined, StopOutlined, ArrowUpOutlined, BuildOutlined } from '@ant-design/icons'
 import useHttp from '../utils/useHttp'
 import { useNavigate } from 'react-router-dom'
 import PublishListingModal from './PublishListingModal'
@@ -43,6 +43,10 @@ const MyListingTable = ({ data, refreshListings }) => {
       request('put', `/listings/publish/${id}`).then(() => refreshListings())
     }
   }
+  const manageBooking = (id) => {
+    console.log('manage booking', id)
+    navigate(`/hosting/manage-booking/${id}`)
+  }
   const handleModalSubmit = (dateRange) => {
     setPublishModalVisible(false)
 
@@ -66,6 +70,28 @@ const MyListingTable = ({ data, refreshListings }) => {
     //   console.log('Airbnb data.listings:', data)
     // }
   }, [error, fetcheddata])
+
+  const expandedRowRender = (record) => {
+    return (
+      <Space size="large">
+        <a onClick={() => manageBooking(record.id)}><BuildOutlined /> Manage Bookings</a>
+        {record.published && (
+          <a onClick={() => handleUnpublish(record.id)}><StopOutlined /> Unpublish</a>
+        )}
+        {!record.published && (
+          <a onClick={() => handlePublish(record.id, record.availability)}>
+            <ArrowUpOutlined /> Publish
+          </a>
+        )}
+        <a onClick={() => handleEdit(record.id)}>
+          <EditOutlined /> Edit
+        </a>
+        <a onClick={() => handleDelete(record.id)}>
+          <DeleteOutlined /> Delete
+        </a>
+      </Space>
+    )
+  }
 
   const columns = [
     {
@@ -96,7 +122,7 @@ const MyListingTable = ({ data, refreshListings }) => {
       key: 'beds',
     },
     {
-      title: 'Bathrooms',
+      title: 'Bath.',
       dataIndex: 'bathrooms',
       key: 'bathrooms',
     },
@@ -104,7 +130,16 @@ const MyListingTable = ({ data, refreshListings }) => {
       title: 'Rating',
       dataIndex: 'rating',
       key: 'rating',
-      render: (rating) => <StarRating rating={rating} />,
+      render: (rating, record) => {
+        const averageScore =
+          record.reviews && record.reviews.length > 0
+            ? record.reviews.reduce(
+              (acc, review) => acc + (Number(review.score) || 0),
+              0
+            ) / record.reviews.length
+            : 0
+        return <StarRating rating={averageScore} />
+      },
     },
     {
       title: 'Reviews',
@@ -118,33 +153,23 @@ const MyListingTable = ({ data, refreshListings }) => {
       key: 'price',
       render: (price) => `$${price}`,
     },
-    {
-      title: 'Actions',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          {record.published && (
-            <a onClick={() => handleUnpublish(record.id)}>Unpublish</a>
-          )}
-          {!record.published && (
-            <a onClick={() => handlePublish(record.id, record.availability)}>
-              Publish
-            </a>
-          )}
-          <a onClick={() => handleEdit(record.id)}>
-            <EditOutlined />
-          </a>
-          <a onClick={() => handleDelete(record.id)}>
-            <DeleteOutlined />
-          </a>
-        </Space>
-      ),
-    },
   ]
 
   return (
     <>
-      {isLoading ? 'Loading' : <Table columns={columns} dataSource={data} />}
+      {isLoading
+        ? (
+            'Loading'
+          )
+        : (
+        <Table
+          columns={columns}
+          expandable={{
+            expandedRowRender,
+          }}
+          dataSource={data}
+        />
+          )}
       <PublishListingModal
         isVisible={isPublishModalVisible}
         onDateRangeSubmit={handleModalSubmit}

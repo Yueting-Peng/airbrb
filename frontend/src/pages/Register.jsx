@@ -68,6 +68,7 @@ const Register = () => {
   const [password, setPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
   const navigate = useNavigate()
+
   React.useEffect(() => {
     if (error) {
       message.open({
@@ -81,7 +82,8 @@ const Register = () => {
         content: 'Registered successfully!',
       })
       localStorage.setItem('token', data.token)
-      navigate('/dashboard')
+      localStorage.setItem('email', email)
+      navigate('/')
     }
   }, [error, data, navigate])
 
