@@ -3,15 +3,7 @@ import React from 'react'
 import { Drawer } from 'antd'
 import SidebarMenu from './HostSidebarMenu'
 
-const HostSidebar = ({
-  drawerVisible,
-  setDrawerVisible,
-  onCreateListingClick,
-}) => {
-  const onMenuItemClick = (e) => {
-    console.log('Menu item clicked:', e.key)
-    setDrawerVisible(false)
-  }
+const HostSidebar = ({ drawerVisible, setDrawerVisible }) => {
   return (
     <Drawer
       title="Menu"
@@ -19,13 +11,7 @@ const HostSidebar = ({
       onClose={() => setDrawerVisible(false)}
       open={drawerVisible}
     >
-      <SidebarMenu
-        onMenuItemClick={onMenuItemClick}
-        onCreateListingClick={() => {
-          onCreateListingClick()
-          setDrawerVisible(false)
-        }}
-      />
+      <SidebarMenu onClose={() => setDrawerVisible(false)}/>
     </Drawer>
   )
 }

@@ -34,22 +34,17 @@ const DetailBottomWrapper = styled.div`
   }
 `
 
-// const userBookings = [
-//   {
-//     bookingId: '123',
-//     dateRange: '2023-11-01 to 2023-11-07',
-//     totalPrice: '$300',
-//   },
-//   // ... more bookings
-// ]
 const ViewListingDetail = () => {
   const params = useParams()
   const navigate = useNavigate()
   const [listingDetails, setListingDetails] = React.useState(null)
   const [bookingHistory, setBookingHistory] = React.useState([])
+  const [availabilityRange, setAvailabilityRange] = React.useState([])
+
   const handleReservation = (reservationDetails) => {
     const isLogined = localStorage.getItem('token')
     console.log('Reservation Details:', reservationDetails)
+    console.log('listingDetails ava date:', listingDetails.availability)
     if (!isLogined) {
       message.open({
         type: 'warning',
@@ -88,6 +83,8 @@ const ViewListingDetail = () => {
             reviews: res.listing.reviews,
             availability: res.listing.availability,
           })
+          setAvailabilityRange([...res.listing.availability])
+          console.log([...res.listing.availability])
         }
       })
       .catch((error) => {
@@ -95,24 +92,21 @@ const ViewListingDetail = () => {
         console.error(error)
       })
 
-    http.get('/bookings').then((res) => {
-      if (res.bookings) {
-        const userEmail = localStorage.getItem('email')
-        const history = res.bookings.filter(
-          (booking) =>
-            booking.owner === userEmail &&
-            booking.listingId === params.listingId &&
-            booking.status === 'accepted'
-        )
-        setBookingHistory(history)
-      }
-    })
-  }, [params.listingId])
-  React.useEffect(() => {
-    if (listingDetails) {
-      console.log(listingDetails.reviews)
+    if (localStorage.getItem('token')) {
+      http.get('/bookings').then((res) => {
+        if (res.bookings) {
+          const userEmail = localStorage.getItem('email')
+          const history = res.bookings.filter(
+            (booking) =>
+              booking.owner === userEmail &&
+              booking.listingId === params.listingId &&
+              booking.status === 'accepted'
+          )
+          setBookingHistory(history)
+        }
+      })
     }
-  }, [listingDetails])
+  }, [params.listingId])
 
   return (
     <ViewDetailContainer>
@@ -130,6 +124,7 @@ const ViewListingDetail = () => {
           <BookingComponent
             dailyRate={listingDetails.price}
             onReserve={handleReservation}
+            availability={availabilityRange}
           />
         </DetailBottomWrapper>
       )}

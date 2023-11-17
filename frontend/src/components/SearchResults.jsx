@@ -4,69 +4,44 @@ import http from '../utils/request'
 import useHttp from '../utils/useHttp'
 import { message, Spin } from 'antd'
 import ListingCard from './ListingCard'
-import styled from 'styled-components'
+import { formatDate } from '../utils/formatDate'
+import SearchTitle from './SearchTitle'
+import { SearchedResultsContainer } from './SearchResultsStyles'
 
-const SearchedResultsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 5px;
-  }
-`
-const StyledSearchTitle = styled.h4`
-  color: #574141;
-  text-align: center;
-`
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toISOString().split('T')[0]
-}
 const SearchResults = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const loggedIn = localStorage.getItem('token')
+  const userEmail = localStorage.getItem('email')
   const { isLoading, error, data, request } = useHttp()
-  const [extendedListings, setExtendedListings] = useState([])
+  // const [extendedListings, setExtendedListings] = useState([])
   const [filteredResults, setFilteredResults] = useState([])
-
-  const generateTitle = () => {
-    const queryParams = new URLSearchParams(location.search)
-    const bedrooms = queryParams.get('bedrooms')
-    const dateRange = queryParams.get('dateRange')
-    const priceRange = queryParams.get('priceRange')
-    const reviewRating = queryParams.get('reviewRating')
-    const searchText = queryParams.get('search')?.toLowerCase() || ''
-
-    if (searchText) return `Properties with title and city "${searchText}"`
-    if (bedrooms) {
-      const bedroomRange = bedrooms.split(',')
-      return `Properties with ${bedroomRange[0]} to ${bedroomRange[1]} bedrooms`
-    }
-    if (dateRange) {
-      const dates = dateRange.split(',')
-      const [startDate, endDate] = dates.map((date) => formatDate(date))
-      return `Properties with avalible range from ${startDate} to ${endDate}`
-    }
-    if (priceRange) {
-      const prices = priceRange.split(',')
-      return `Properties with price from $${prices[0]} to $${prices[1]}`
-    }
-    if (reviewRating) {
-      if (reviewRating === 'highToLow') {
-        return 'Rating from high to low'
-      }
-      if (reviewRating === 'lowToHigh') {
-        return 'Rating from low to high'
-      }
-    }
-
-    return 'Search Listings'
-  }
+  const [userBookingStatuses, setUserBookingStatuses] = useState({})
+  const [sortedPublishedListings, setSortedPublishedListings] = useState([])
 
   useEffect(() => {
+    if (loggedIn) {
+      http
+        .get('/bookings')
+        .then((response) => {
+          const statuses = response.bookings.reduce((acc, booking) => {
+            if (booking.status !== 'declined' && userEmail === booking.owner) {
+              if (!acc[booking.listingId]) {
+                acc[booking.listingId] = []
+              }
+              acc[booking.listingId].push(booking.status)
+            }
+            return acc
+          }, {})
+          setUserBookingStatuses(statuses)
+        })
+        .catch((error) => console.error('Error fetching bookings:', error))
+    } else {
+      setUserBookingStatuses({})
+    }
+
     request('get', '/listings')
-  }, [request])
+  }, [loggedIn])
 
   useEffect(() => {
     if (error) {
@@ -78,27 +53,59 @@ const SearchResults = () => {
   }, [error])
 
   useEffect(() => {
-    const fetchListingDetails = async () => {
-      if (data && data.listings) {
-        try {
-          const detailsPromises = data.listings.map(async (listing) => {
-            const response = await http.get(`/listings/${listing.id}`)
-            if (response.listing.published) {
-              return { ...response.listing, id: listing.id }
-            }
-            return null
-          })
+    if (data && data.listings) {
+      // Sort listings by title
+      const sortedListings = [...data.listings].sort((a, b) =>
+        a.title.localeCompare(b.title)
+      )
 
-          const details = await Promise.all(detailsPromises)
-          const filteredDetails = details.filter((detail) => detail !== null)
-          setExtendedListings(filteredDetails)
-        } catch (error) {
-          message.error('Error fetching listing details')
-        }
+      const fetchListingsDetails = async () => {
+        const detailedListings = await Promise.all(
+          sortedListings.map(async (listing) => {
+            const response = await http.get(`/listings/${listing.id}`)
+            return { ...response.listing, id: listing.id }
+          })
+        )
+
+        // Filter out published listings
+        const publishedListings = detailedListings.filter(
+          (listingObj) => listingObj.published
+        )
+
+        // Move listings with IDs in userBookingStatuses to the front
+        const sortedPublishedListings = publishedListings.sort((a, b) => {
+          const aInBookingStatuses = Object.prototype.hasOwnProperty.call(
+            userBookingStatuses,
+            a.id
+          )
+          const bInBookingStatuses = Object.prototype.hasOwnProperty.call(
+            userBookingStatuses,
+            b.id
+          )
+
+          if (aInBookingStatuses && !bInBookingStatuses) {
+            return -1
+          } else if (!aInBookingStatuses && bInBookingStatuses) {
+            return 1
+          } else {
+            return 0
+          }
+        })
+
+        // Add status to the listings
+        const sortedPublishedListingsWithStatus = sortedPublishedListings.map(
+          (listing) => ({
+            ...listing,
+            status: userBookingStatuses[listing.id] || null,
+          })
+        )
+
+        setSortedPublishedListings(sortedPublishedListingsWithStatus)
       }
+
+      fetchListingsDetails()
     }
-    fetchListingDetails()
-  }, [data, request])
+  }, [userBookingStatuses, data, request])
 
   useEffect(() => {
     console.log('Updated filteredResults:', filteredResults)
@@ -114,7 +121,8 @@ const SearchResults = () => {
       const searchText = queryParams.get('search')?.toLowerCase() || ''
 
       if (searchText) {
-        return extendedListings.filter((listing) => {
+        localStorage.removeItem('lastSearchedDateRange')
+        return sortedPublishedListings.filter((listing) => {
           const titleMatch = listing.title.toLowerCase().includes(searchText)
           const cityMatch = listing.address.city
             .toLowerCase()
@@ -123,8 +131,9 @@ const SearchResults = () => {
         })
       }
       if (bedrooms) {
+        localStorage.removeItem('lastSearchedDateRange')
         const bedroomRange = bedrooms.split(',')
-        return extendedListings.filter((listing) => {
+        return sortedPublishedListings.filter((listing) => {
           const [minBedrooms, maxBedrooms] = bedroomRange
           return (
             listing.metadata.bedInfo.bedrooms >= parseInt(minBedrooms, 10) &&
@@ -135,8 +144,8 @@ const SearchResults = () => {
       if (dateRange) {
         const dates = dateRange.split(',')
         const [startDate, endDate] = dates.map((date) => formatDate(date))
-
-        return extendedListings.filter((listing) => {
+        localStorage.setItem('lastSearchedDateRange', [startDate, endDate])
+        return sortedPublishedListings.filter((listing) => {
           return listing.availability.some((avail) => {
             const availStart = new Date(avail.start)
             const availEnd = new Date(avail.end)
@@ -148,9 +157,10 @@ const SearchResults = () => {
       }
 
       if (priceRange) {
-        console.log(priceRange)
+        // console.log(priceRange)
+        localStorage.removeItem('lastSearchedDateRange')
         const prices = priceRange.split(',')
-        return extendedListings.filter((listing) => {
+        return sortedPublishedListings.filter((listing) => {
           const [minPrice, maxPrice] = prices
           return (
             listing.price >= parseInt(minPrice, 10) &&
@@ -159,14 +169,39 @@ const SearchResults = () => {
         })
       }
       if (reviewRating) {
-        console.log(reviewRating)
+        localStorage.removeItem('lastSearchedDateRange')
+
+        sortedPublishedListings.forEach((listing) => {
+          if (listing.reviews && listing.reviews.length > 0) {
+            const totalScore = listing.reviews.reduce(
+              (sum, review) => sum + review.score,
+              0
+            )
+            const averageScore = totalScore / listing.reviews.length
+            listing.averageScore = averageScore
+          } else {
+            listing.averageScore = 0
+          }
+        })
+
+        if (reviewRating === 'lowToHigh') {
+          sortedPublishedListings.sort(
+            (a, b) => a.averageScore - b.averageScore
+          )
+        } else if (reviewRating === 'highToLow') {
+          sortedPublishedListings.sort(
+            (a, b) => b.averageScore - a.averageScore
+          )
+        }
+
+        return sortedPublishedListings
       }
     }
 
-    if (extendedListings.length > 0) {
+    if (sortedPublishedListings.length > 0) {
       setFilteredResults(filterListings())
     }
-  }, [extendedListings, location.search])
+  }, [sortedPublishedListings, location.search])
 
   const onCardClick = (listingId) => {
     console.log('Clicked searched:', listingId)
@@ -176,10 +211,12 @@ const SearchResults = () => {
   return (
     <div>
       {isLoading
-        ? <Spin size="large" />
+        ? (
+        <Spin size="large" />
+          )
         : (
         <>
-          <StyledSearchTitle>{generateTitle()}</StyledSearchTitle>
+          <SearchTitle />
           <SearchedResultsContainer>
             {filteredResults.map((listing) => (
               <ListingCard

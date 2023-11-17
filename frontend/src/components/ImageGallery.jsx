@@ -66,11 +66,7 @@ const ImageGallery = ({ images }) => {
         <Carousel initialSlide={currentImage} adaptiveHeight>
           {images.map((img, index) => (
             <div key={index}>
-              <StyledImage
-                src={img}
-                alt={`Image ${index}`}
-                style={{ width: '100%' }}
-              />
+              <StyledImage src={img} alt={`Image ${index}`} />
             </div>
           ))}
         </Carousel>

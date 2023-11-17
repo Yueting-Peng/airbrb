@@ -66,6 +66,9 @@ const BookingDetails = styled.div`
     }
   }
 `
+const MetaDiv = styled.div`
+  width: 100%;
+`
 
 const BookingRequests = ({ bookingData, history, onAccept, onDeny }) => {
   const [list, setList] = useState([])
@@ -81,12 +84,12 @@ const BookingRequests = ({ bookingData, history, onAccept, onDeny }) => {
       dataSource={list}
       renderItem={(item) => (
         <ListItem>
-          <div style={{ width: '100%' }}>
+          <MetaDiv>
             <BookingItemMeta
               title={`Booking ID: ${item.id}`}
               description={`Customer email: ${item.owner}`}
             />
-          </div>
+          </MetaDiv>
           <BookingDetails>
             <p>
               Date range: {`${item.dateRange.start} to ${item.dateRange.end}`}

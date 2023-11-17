@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 import { Outlet, useNavigate } from 'react-router-dom'
 import HomeDropdown from './components/HomeDropdown.jsx'
 import useHttp from './utils/useHttp'
@@ -44,17 +44,29 @@ const App = () => {
   const handleMenuClick = async (e) => {
     console.log('click', e)
     if (e.key === 'logout') {
-      const isConfirmed = confirm(
-        'Are you sure you want to log out of your current account?'
-      )
-      if (!isConfirmed) return
-      await request('post', '/user/auth/logout')
-      localStorage.removeItem('token')
-      navigate('/')
+      Modal.confirm({
+        title: 'Are you sure you want to log out?',
+        content: 'Logging out will end your session',
+        okType: 'danger',
+        onOk: async () => {
+          try {
+            await request('post', '/user/auth/logout')
+            localStorage.removeItem('token')
+            localStorage.removeItem('email')
+            navigate('/')
+          } catch (error) {
+            message.error(error.message || 'Logout failed')
+          }
+        },
+        onCancel () {
+          console.log('Cancel logout')
+        },
+      })
     } else {
       navigate(`/${e.key}`)
     }
   }
+
   React.useEffect(() => {
     if (error) {
       message.open({

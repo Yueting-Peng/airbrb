@@ -4,12 +4,23 @@ import styled from 'styled-components'
 import {
   HeartOutlined,
   EnvironmentOutlined,
-  CalendarOutlined,
   DollarOutlined,
-  StarFilled,
+  StarOutlined,
 } from '@ant-design/icons'
+import StarRating from './StarRating'
 
 // Styled components
+const StatusTag = styled.span`
+  background-color: #e0e0e0;
+  color: #000;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.9em;
+  position: absolute;
+  left: 30px;
+  top: 30px;
+`
+
 const StyledCard = styled(Card)`
   max-width: 100%;
   cursor: pointer;
@@ -34,6 +45,10 @@ const InfoRow = styled.div`
   align-items: center;
   margin-bottom: 8px;
 `
+const ReviewRow = styled.div`
+  display: flex;
+  margin-bottom: 8px;
+`
 const StyledHeartOutlined = styled(HeartOutlined)`
   position: absolute;
   top: 40px;
@@ -48,6 +63,7 @@ const ListingCard = ({ listing, onCardClick }) => {
   if (listing.thumbnail) {
     validImages.unshift(listing.thumbnail)
   }
+  const uniqueStatuses = [...new Set(listing.status)]
 
   return (
     <StyledCard hoverable onClick={onCardClick}>
@@ -59,15 +75,22 @@ const ListingCard = ({ listing, onCardClick }) => {
         ))}
       </Carousel>
       <Content>
-        <h3>{listing.title}</h3>
+        {uniqueStatuses &&
+          uniqueStatuses.map((status, index) => (
+            <StatusTag key={index}>{status.toUpperCase()}</StatusTag>
+          ))}
+        <InfoRow>
+          <h3>{listing.title}</h3>{' '}
+          <ReviewRow>
+            <StarRating reviews={listing.reviews} hideRate={true} />
+          </ReviewRow>
+        </InfoRow>
+
         <StyledHeartOutlined />
         <InfoRow>
           <span>
             <EnvironmentOutlined />{' '}
             {`${listing.address.city}, ${listing.address.country}`}
-          </span>
-          <span>
-            <CalendarOutlined /> {listing.dates}
           </span>
         </InfoRow>
         <InfoRow>
@@ -75,13 +98,14 @@ const ListingCard = ({ listing, onCardClick }) => {
             <DollarOutlined /> {listing.price} per night
           </span>
         </InfoRow>
-        <InfoRow>
+
+        <ReviewRow>
           {' '}
           <span>
-            <StarFilled /> Total reviews:{' '}
+            <StarOutlined /> Total reviews:{' '}
             {Array.isArray(listing.reviews) ? listing.reviews.length : 0}
           </span>
-        </InfoRow>
+        </ReviewRow>
       </Content>
     </StyledCard>
   )

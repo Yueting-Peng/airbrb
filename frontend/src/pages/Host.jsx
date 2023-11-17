@@ -24,14 +24,14 @@ const HostHeader = styled.header`
   gap: 30px;
   align-items: center;
 
-  @media (max-width: 950px) {
+  @media (max-width: 1100px) {
     padding: 0 20px;
     justify-content: space-between;
   }
 `
 const MenuBtn = styled(Button)`
   display: none;
-  @media (max-width: 950px) {
+  @media (max-width: 1100px) {
     display: block;
   }
 `
@@ -39,9 +39,9 @@ const HostMain = styled.main`
   display: flex;
 `
 const HostMenuBig = styled.aside`
-  width: 20%;
+  width: 200px;
   min-width: 230px;
-  @media (max-width: 950px) {
+  @media (max-width: 1100px) {
     display: none;
   }
 `
@@ -54,12 +54,6 @@ const Host = () => {
   const navigate = useNavigate()
   const [drawerVisible, setDrawerVisible] = React.useState(false)
 
-  const handleCreateListingClick = () => {
-    navigate('/hosting/create-listing')
-  }
-  const handleMyListingsClick = () => {
-    navigate('/hosting/my-listings')
-  }
   const goHome = () => {
     navigate('/')
   }
@@ -75,16 +69,11 @@ const Host = () => {
       </HostHeader>
       <HostMain>
         <HostMenuBig>
-          <SidebarMenu
-            onCreateListingClick={handleCreateListingClick}
-            handleMyListingsClick={handleMyListingsClick}
-          />
+          <SidebarMenu />
         </HostMenuBig>
         <HostSidebar
           drawerVisible={drawerVisible}
           setDrawerVisible={setDrawerVisible}
-          onCreateListingClick={handleCreateListingClick}
-          handleMyListingsClick={handleMyListingsClick}
         />
         <HostMainRight>
           <Outlet />

@@ -13,6 +13,9 @@ const AmenityContainer = styled.div`
   max-width: 400px;
   margin: 20px 0;
 `
+const StyledListItem = styled(List.Item)`
+  text-decoration: ${(props) => (props.available ? 'none' : 'line-through')};
+`
 
 const amenitiesIcons = {
   wifi: Wifi,
@@ -26,6 +29,7 @@ const amenitiesIcons = {
 
 const AmenityItem = ({ amenity, available }) => {
   const IconComponent = amenitiesIcons[amenity]
+
   const formatAmenity = (str) => {
     return (
       str
@@ -37,17 +41,16 @@ const AmenityItem = ({ amenity, available }) => {
     )
   }
   return (
-    <List.Item style={{ textDecoration: available ? 'none' : 'line-through' }}>
+    <StyledListItem available={available}>
       <List.Item.Meta
         avatar={IconComponent ? <IconComponent size={24} /> : null}
         title={formatAmenity(amenity)} // Add space before capital letters
       />
-    </List.Item>
+    </StyledListItem>
   )
 }
 
 const AmenitiesComponent = ({ amenities }) => {
-  console.log(amenities)
   const amenitiesList = Object.entries(amenities).map(([key, value]) => ({
     amenity: key,
     available: value,

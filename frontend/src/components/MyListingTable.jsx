@@ -1,12 +1,43 @@
 import React, { useState } from 'react'
-import { Space, Table, Image, message } from 'antd'
+import { Space, Table, Image, message, Modal } from 'antd'
 import StarRating from './StarRating'
-import { EditOutlined, DeleteOutlined, StopOutlined, ArrowUpOutlined, BuildOutlined } from '@ant-design/icons'
+import {
+  EditOutlined,
+  DeleteOutlined,
+  StopOutlined,
+  ArrowUpOutlined,
+  BuildOutlined,
+} from '@ant-design/icons'
 import useHttp from '../utils/useHttp'
 import { useNavigate } from 'react-router-dom'
 import PublishListingModal from './PublishListingModal'
 import http from '../utils/request'
+import styled from 'styled-components'
 
+const ResponsiveTableLg = styled(Table)`
+  @media (min-width: 992px) {
+    display: none;
+  }
+`
+const ResponsiveTableMd = styled(Table)`
+  @media (min-width: 768px) {
+    display: none;
+  }
+`
+
+const SmallScreenRating = styled.div`
+  display: none;
+  @media (max-width: 1300px) {
+    display: block;
+  }
+`
+
+const LargeScreenRating = styled.div`
+  display: block;
+  @media (max-width: 1300px) {
+    display: none;
+  }
+`
 const MyListingTable = ({ data, refreshListings }) => {
   const [isPublishModalVisible, setPublishModalVisible] = useState(false)
   const [currentListingId, setCurrentListingId] = useState(null)
@@ -19,14 +50,41 @@ const MyListingTable = ({ data, refreshListings }) => {
   }
 
   const handleDelete = (id) => {
-    const isConfirmed = confirm('Are you sure you want to delete the listing?')
-    if (!isConfirmed) return
+    Modal.confirm({
+      title: 'Delete a listing',
+      content: 'Are you sure you want to delete the listing?',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          request('deleteRequest', `/listings/${id}`).then(() =>
+            refreshListings()
+          )
+        } catch (error) {
+          message.error(error.message || 'delete failed')
+        }
+      },
+      onCancel () {
+        console.log('Cancel delete')
+      },
+    })
     console.log('Delete:', id)
-    request('deleteRequest', `/listings/${id}`).then(() => refreshListings())
   }
   const handleUnpublish = (id) => {
-    console.log(`unpublish${id}`)
-    http.put(`/listings/unpublish/${id}`).then(() => refreshListings())
+    Modal.confirm({
+      title: 'Unpublish a listing',
+      content: 'Are you sure you want to unpublish the listing?',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          http.put(`/listings/unpublish/${id}`).then(() => refreshListings())
+        } catch (error) {
+          message.error(error.message || 'unpublish failed')
+        }
+      },
+      onCancel () {
+        console.log('Cancel unpublish')
+      },
+    })
   }
   const handlePublish = (id, availability) => {
     console.log(availability)
@@ -73,23 +131,41 @@ const MyListingTable = ({ data, refreshListings }) => {
 
   const expandedRowRender = (record) => {
     return (
-      <Space size="large">
-        <a onClick={() => manageBooking(record.id)}><BuildOutlined /> Manage Bookings</a>
-        {record.published && (
-          <a onClick={() => handleUnpublish(record.id)}><StopOutlined /> Unpublish</a>
-        )}
-        {!record.published && (
-          <a onClick={() => handlePublish(record.id, record.availability)}>
-            <ArrowUpOutlined /> Publish
+      <>
+        <ResponsiveTableLg
+          columns={subTableColumns1}
+          dataSource={[record]}
+          pagination={false}
+          showHeader={true}
+        />
+        <ResponsiveTableMd
+          columns={subTableColumns2}
+          dataSource={[record]}
+          pagination={false}
+          showHeader={true}
+        />
+        <Space size="large">
+          <a onClick={() => manageBooking(record.id)}>
+            <BuildOutlined /> Manage Bookings
           </a>
-        )}
-        <a onClick={() => handleEdit(record.id)}>
-          <EditOutlined /> Edit
-        </a>
-        <a onClick={() => handleDelete(record.id)}>
-          <DeleteOutlined /> Delete
-        </a>
-      </Space>
+          {record.published && (
+            <a onClick={() => handleUnpublish(record.id)}>
+              <StopOutlined /> Unpublish
+            </a>
+          )}
+          {!record.published && (
+            <a onClick={() => handlePublish(record.id, record.availability)}>
+              <ArrowUpOutlined /> Publish
+            </a>
+          )}
+          <a onClick={() => handleEdit(record.id)}>
+            <EditOutlined /> Edit
+          </a>
+          <a onClick={() => handleDelete(record.id)}>
+            <DeleteOutlined /> Delete
+          </a>
+        </Space>
+      </>
     )
   }
 
@@ -109,13 +185,60 @@ const MyListingTable = ({ data, refreshListings }) => {
       title: 'Type',
       dataIndex: 'propertyType',
       key: 'propertyType',
+      responsive: ['md'],
     },
     {
       title: 'Status',
       dataIndex: 'published',
       key: 'published',
       render: (published) => (published ? 'Listed' : 'Unlisted'),
+      responsive: ['lg'],
     },
+    {
+      title: 'Beds',
+      dataIndex: 'beds',
+      key: 'beds',
+      responsive: ['lg'],
+    },
+    {
+      title: 'Bath.',
+      dataIndex: 'bathrooms',
+      key: 'bathrooms',
+      responsive: ['lg'],
+    },
+    {
+      title: 'Rating',
+      dataIndex: 'reviews',
+      key: 'rating',
+      render: (reviews) => (
+        <>
+          <SmallScreenRating>
+            <StarRating reviews={reviews} hideRate={true} />
+          </SmallScreenRating>
+          <LargeScreenRating>
+            <StarRating reviews={reviews} />
+          </LargeScreenRating>
+        </>
+      ),
+      responsive: ['lg'],
+    },
+    {
+      title: 'Reviews',
+      dataIndex: 'reviews',
+      key: 'reviews',
+      render: (reviews) => (Array.isArray(reviews) ? reviews.length : 0),
+      responsive: ['md'],
+    },
+    {
+      title: 'Price',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price) => `$${price}`,
+      responsive: ['md'],
+    },
+  ]
+
+  const subTableColumns1 = [
     {
       title: 'Beds',
       dataIndex: 'beds',
@@ -128,19 +251,12 @@ const MyListingTable = ({ data, refreshListings }) => {
     },
     {
       title: 'Rating',
-      dataIndex: 'rating',
+      dataIndex: 'reviews',
       key: 'rating',
-      render: (rating, record) => {
-        const averageScore =
-          record.reviews && record.reviews.length > 0
-            ? record.reviews.reduce(
-              (acc, review) => acc + (Number(review.score) || 0),
-              0
-            ) / record.reviews.length
-            : 0
-        return <StarRating rating={averageScore} />
-      },
+      render: (reviews) => <StarRating reviews={reviews} hideRate={true} />,
     },
+  ]
+  const subTableColumns2 = [
     {
       title: 'Reviews',
       dataIndex: 'reviews',
@@ -152,6 +268,11 @@ const MyListingTable = ({ data, refreshListings }) => {
       dataIndex: 'price',
       key: 'price',
       render: (price) => `$${price}`,
+    },
+    {
+      title: 'Type',
+      dataIndex: 'propertyType',
+      key: 'propertyType',
     },
   ]
 

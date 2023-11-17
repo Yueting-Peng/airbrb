@@ -29,7 +29,7 @@ const get = async (url) => {
     })
     return await handleResponse(response)
   } catch (error) {
-    console.error('GET request failed:', error)
+    console.error(`GET request failed: ${url}`, error)
     throw error
   }
 }

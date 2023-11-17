@@ -1,19 +1,32 @@
 import React from 'react'
 import { Descriptions } from 'antd'
+import moment from 'moment'
+import StarRating from './StarRating'
 
 const ResponsiveDescriptions = ({
   address,
   price,
-  priceType,
   propertyType,
   bedInfo,
+  reviews,
 }) => {
   const fullAddress = `${address.street}, ${address.city}, ${address.state} ${address.postcode}, ${address.country}`
+
+  const lastSearchedDateRange = localStorage.getItem('lastSearchedDateRange')
+  let priceDescription
+  if (lastSearchedDateRange) {
+    const [startDate, endDate] = lastSearchedDateRange.split(',')
+    const days = moment(endDate).diff(moment(startDate), 'days')
+    priceDescription = `$${price * days} per stay`
+
+    // localStorage.removeItem('lastSearchedDateRange')
+  } else {
+    priceDescription = `$${price} per night`
+  }
   const items = [
     {
       label: 'Price',
-      children:
-        priceType === 'perStay' ? `$${price} per stay` : `$${price} per night`,
+      children: priceDescription,
     },
     {
       label: 'Type',
@@ -35,28 +48,36 @@ const ResponsiveDescriptions = ({
       label: 'Bathrooms',
       children: bedInfo.bathrooms,
     },
+    {
+      label: 'Guest Ratings',
+      children: <StarRating reviews={reviews} />,
+    },
   ]
 
   return (
     <>
-    <h2>Property Information</h2>
-    <Descriptions
-      bordered
-      column={{
-        xs: 1,
-        sm: 1,
-        md: 2,
-        lg: 3,
-        xl: 3,
-        xxl: 4,
-      }}
-    >
-      {items.map((item, index) => (
-        <Descriptions.Item key={index} label={item.label} span={item.span || 1}>
-          {item.children}
-        </Descriptions.Item>
-      ))}
-    </Descriptions>
+      <h2 id='property-information'>Property Information</h2>
+      <Descriptions
+        bordered
+        column={{
+          xs: 1,
+          sm: 2,
+          md: 2,
+          lg: 2,
+          xl: 3,
+          xxl: 3,
+        }}
+      >
+        {items.map((item, index) => (
+          <Descriptions.Item
+            key={index}
+            label={item.label}
+            span={item.span || 1}
+          >
+            {item.children}
+          </Descriptions.Item>
+        ))}
+      </Descriptions>
     </>
   )
 }

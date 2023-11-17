@@ -18,40 +18,92 @@ const ListingWrap = styled.div`
 
 const AllListings = () => {
   const navigate = useNavigate()
+  const loggedIn = localStorage.getItem('token')
+  const userEmail = localStorage.getItem('email')
   const { isLoading, error, data, request } = useHttp()
   const [sortedPublishedListings, setSortedPublishedListings] = useState([])
+  const [userBookingStatuses, setUserBookingStatuses] = useState({})
+  useEffect(() => {
+    if (loggedIn) {
+      http
+        .get('/bookings')
+        .then((response) => {
+          const statuses = response.bookings.reduce((acc, booking) => {
+            if (booking.status !== 'declined' && userEmail === booking.owner) {
+              if (!acc[booking.listingId]) {
+                acc[booking.listingId] = []
+              }
+              acc[booking.listingId].push(booking.status)
+            }
+            return acc
+          }, {})
+          setUserBookingStatuses(statuses)
+        })
+        .catch((error) => console.error('Error fetching bookings:', error))
+    } else {
+      setUserBookingStatuses({})
+    }
 
+    request('get', '/listings')
+  }, [loggedIn])
   useEffect(() => {
     if (data && data.listings) {
+      // Sort listings by title
       const sortedListings = [...data.listings].sort((a, b) =>
         a.title.localeCompare(b.title)
       )
 
-      const sortedIds = sortedListings.map((listing) => listing.id)
-
       const fetchListingsDetails = async () => {
         const detailedListings = await Promise.all(
-          sortedIds.map(async (id) => {
-            const response = await http.get(`/listings/${id}`)
-            return { ...response.listing, id }
+          sortedListings.map(async (listing) => {
+            const response = await http.get(`/listings/${listing.id}`)
+            return { ...response.listing, id: listing.id }
           })
         )
-        // console.log(detailedListings)
 
+        // Filter out published listings
         const publishedListings = detailedListings.filter(
           (listingObj) => listingObj.published
         )
 
-        setSortedPublishedListings(publishedListings)
+        // Move listings with IDs in userBookingStatuses to the front
+        const sortedPublishedListings = publishedListings.sort((a, b) => {
+          const aInBookingStatuses = Object.prototype.hasOwnProperty.call(
+            userBookingStatuses,
+            a.id
+          )
+          const bInBookingStatuses = Object.prototype.hasOwnProperty.call(
+            userBookingStatuses,
+            b.id
+          )
+
+          if (aInBookingStatuses && !bInBookingStatuses) {
+            return -1
+          } else if (!aInBookingStatuses && bInBookingStatuses) {
+            return 1
+          } else {
+            return 0
+          }
+        })
+
+        // Add status to the listings
+        const sortedPublishedListingsWithStatus = sortedPublishedListings.map(
+          (listing) => ({
+            ...listing,
+            status: userBookingStatuses[listing.id] || null,
+          })
+        )
+
+        setSortedPublishedListings(sortedPublishedListingsWithStatus)
       }
 
       fetchListingsDetails()
     }
-  }, [data, request])
+  }, [userBookingStatuses, data, http])
 
   useEffect(() => {
-    request('get', '/listings')
-  }, [request])
+    console.log(sortedPublishedListings)
+  }, [sortedPublishedListings])
 
   useEffect(() => {
     if (error) {
@@ -65,7 +117,7 @@ const AllListings = () => {
     }
   }, [error, data])
   const onCardClick = (listingId) => {
-    console.log('Clicked listing:', listingId)
+    localStorage.removeItem('lastSearchedDateRange')
     navigate(`/detail/${listingId}`)
   }
 

@@ -11,9 +11,12 @@ const MainContainer = styled.section`
   margin: auto;
 `
 const Home = () => {
+  const isLogin = () => {
+    return !!localStorage.getItem('token')
+  }
   return (
     <>
-      <MiddleNavBar />
+      <MiddleNavBar isLogin={isLogin}/>
       <MainContainer>
         <Outlet />
       </MainContainer>

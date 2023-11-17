@@ -1,6 +1,6 @@
 // SidebarMenu.jsx
 import React from 'react'
-import { Menu } from 'antd'
+import { Menu, message, Modal } from 'antd'
 import {
   HouseAdd,
   ViewList,
@@ -8,8 +8,9 @@ import {
   BoxArrowRight,
   GlobeAmericas,
 } from 'react-bootstrap-icons'
-import { UnorderedListOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
+import http from '../utils/request'
 
 const StyledMenuItem = styled(Menu.Item)`
   color: #574141;
@@ -27,33 +28,74 @@ const StyledMenu = styled(Menu)`
   flex-direction: column;
   gap: 15px;
 `
-const SidebarMenu = ({
-  onMenuItemClick,
-  onCreateListingClick,
-  handleMyListingsClick,
-}) => {
+const SidebarMenu = ({ onClose }) => {
+  const navigate = useNavigate()
+
+  const handleMenuClick = (e) => {
+    switch (e.key) {
+      case 'Mylistings':
+        navigate('/hosting/my-listings')
+        break
+      case 'Reservations':
+        navigate('/reservations')
+        break
+      case 'CreateNewListing':
+        navigate('/hosting/create-listing')
+        break
+      case 'travelling':
+        navigate('/')
+        break
+      case 'LogOut':
+        Modal.confirm({
+          title: 'Are you sure you want to log out?',
+          content: 'Logging out will end your session',
+          okType: 'danger',
+          onOk () {
+            http
+              .post('/user/auth/logout')
+              .then(() => {
+                localStorage.removeItem('token')
+                localStorage.removeItem('email')
+                message.success('Logout successfully')
+                navigate('/')
+              })
+              .catch((error) => {
+                message.error(error.message || 'Logout failed')
+              })
+          },
+          onCancel () {
+            console.log('Cancel logout')
+          },
+        })
+
+        break
+      default:
+        navigate(0)
+        break
+    }
+    if (onClose) {
+      onClose()
+    }
+  }
+
   return (
-    <StyledMenu onClick={onMenuItemClick} mode="inline">
-      <StyledMenuItem key="1">
-        <UnorderedListOutlined />
-        &nbsp;&nbsp;View all listings
-      </StyledMenuItem>
-      <StyledMenuItem key="2" onClick={handleMyListingsClick}>
+    <StyledMenu onClick={handleMenuClick} mode="inline">
+      <StyledMenuItem key="Mylistings">
         <ViewList />
         &nbsp;&nbsp;&nbsp;My listings
       </StyledMenuItem>
-      <StyledMenuItem key="3">
+      <StyledMenuItem key="Reservations">
         <JournalCheck /> &nbsp;&nbsp;Reservations
       </StyledMenuItem>
-      <StyledMenuItem key="4" onClick={onCreateListingClick}>
+      <StyledMenuItem key="CreateNewListing">
         <HouseAdd />
         &nbsp;&nbsp; Create a new listing
       </StyledMenuItem>
-      <StyledMenuItem key="5">
+      <StyledMenuItem key="travelling">
         <GlobeAmericas />
         &nbsp;&nbsp; Switch to travelling
       </StyledMenuItem>
-      <StyledMenuItem key="6">
+      <StyledMenuItem key="LogOut">
         <BoxArrowRight />
         &nbsp;&nbsp;&nbsp;Log out
       </StyledMenuItem>

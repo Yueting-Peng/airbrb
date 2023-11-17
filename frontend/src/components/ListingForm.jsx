@@ -32,6 +32,9 @@ const CheckboxAmenities = styled(Checkbox)`
   margin-top: 20px;
   padding-right: 5px;
 `
+const CheckBoxStyled = styled(Checkbox.Group)`
+  width: 100%;
+`
 
 const ListingForm = (props) => {
   const [form] = Form.useForm()
@@ -45,8 +48,11 @@ const ListingForm = (props) => {
   return (
     <>
       {props.isLoading
-        ? <div>Loading...</div>
-        : <Form
+        ? (
+        <div>Loading...</div>
+          )
+        : (
+        <Form
           form={form}
           layout="vertical"
           name="new_listing_form"
@@ -208,7 +214,7 @@ const ListingForm = (props) => {
             </Form.Item>
           </BedInfo>
           <Form.Item name="amenities" label="Property Amenities">
-            <Checkbox.Group style={{ width: '100%' }}>
+            <CheckBoxStyled>
               <CheckboxAmenities value="wifi">
                 <WifiOutlined />
                 &nbsp;&nbsp;Wi-Fi
@@ -237,7 +243,7 @@ const ListingForm = (props) => {
                 <CarOutlined />
                 &nbsp;&nbsp;Parking
               </CheckboxAmenities>
-            </Checkbox.Group>
+            </CheckBoxStyled>
           </Form.Item>
           <Form.Item
             name="images"
@@ -260,7 +266,7 @@ const ListingForm = (props) => {
             </Button>
           </Form.Item>
         </Form>
-      }
+          )}
     </>
   )
 }

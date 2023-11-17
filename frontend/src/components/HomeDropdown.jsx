@@ -33,12 +33,7 @@ const HomeDropdown = ({ isLogin, handleMenuClick }) => {
   ]
   const itemsLogged = [
     {
-      label: 'Profile',
-      key: 'profile',
-      icon: <UserOutlined />,
-    },
-    {
-      label: 'Manage Listings',
+      label: 'hosting page',
       key: 'hosting',
       icon: <UnorderedListOutlined />,
     },

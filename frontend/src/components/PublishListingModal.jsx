@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Modal, DatePicker, Button, Space } from 'antd'
+import moment from 'moment'
 
 const { RangePicker } = DatePicker
 
@@ -7,9 +8,13 @@ const PublishListingModal = ({ isVisible, onClose, onDateRangeSubmit }) => {
   const [availability, setAvailability] = useState([])
   useEffect(() => {
     if (isVisible) {
-      setAvailability([]);
+      setAvailability([])
     }
-  }, [isVisible]);
+  }, [isVisible])
+
+  const disabledDate = (current) => {
+    return current && current < moment().startOf('day')
+  }
 
   const handleAddRange = (dates) => {
     if (dates) {
@@ -43,7 +48,11 @@ const PublishListingModal = ({ isVisible, onClose, onDateRangeSubmit }) => {
     >
       <h4>Please choose one or more availability date range(s)</h4>
       <Space direction="vertical" size="large">
-        <RangePicker format="YYYY-MM-DD" onChange={handleAddRange} />
+        <RangePicker
+          format="YYYY-MM-DD"
+          onChange={handleAddRange}
+          disabledDate={disabledDate}
+        />
         {availability.map((range, index) => (
           <div key={index}>
             {range.start} to {range.end}
