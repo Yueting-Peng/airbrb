@@ -123,9 +123,9 @@ In the **Component** Testing section, I tested three components.
 
 ## **Component** Testing Results
 
-<img src="/Users/pengyueting/Desktop/23T3_6080/airbrb/images_in_mds/2023-11-17 18.34.46.png" style="zoom:50%;" />
+<img src="./images_in_mds/2023-11-17 18.34.46.png" style="zoom:50%;" />
 
-<img src="/Users/pengyueting/Desktop/23T3_6080/airbrb/images_in_mds/2023-11-17 19.38.03.png" style="zoom:50%;" />
+<img src="./images_in_mds/2023-11-17 19.38.03.png" style="zoom:50%;" />
 
-<img src="/Users/pengyueting/Desktop/23T3_6080/airbrb/images_in_mds/2023-11-17 20.08.54.png" style="zoom:50%;" />
+<img src="./images_in_mds/2023-11-17 20.08.54.png" style="zoom:50%;" />
 
