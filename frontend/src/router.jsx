@@ -12,6 +12,7 @@ import EditListing from './components/EditListing'
 import ViewListingDetail from './components/ViewListingDetail'
 import SearchResults from './components/SearchResults'
 import ManageBooking from './components/ManageBooking'
+import Reservations from './components/Reservations'
 import { message } from 'antd'
 
 const RequireAuth = ({ children }) => {
@@ -19,7 +20,7 @@ const RequireAuth = ({ children }) => {
   const token = localStorage.getItem('token')
 
   if (!token) {
-    message.warning('You must be logged in to access hosting page.')
+    message.warning('You must be logged in to access this page.')
 
     return <Navigate to="/login" state={{ from: location }} replace />
   }
@@ -57,6 +58,14 @@ const router = createBrowserRouter([
       {
         path: 'register',
         element: <Register />,
+      },
+      {
+        path: 'reservations',
+        element: (
+          <RequireAuth>
+            <Reservations />
+          </RequireAuth>
+        ),
       },
     ],
   },

@@ -7,6 +7,7 @@ import {
   UserAddOutlined,
   ExportOutlined,
   UnorderedListOutlined,
+  CalendarOutlined,
 } from '@ant-design/icons'
 import SearchComponent from './SearchComponent'
 
@@ -36,6 +37,11 @@ const HomeDropdown = ({ isLogin, handleMenuClick }) => {
       label: 'hosting page',
       key: 'hosting',
       icon: <UnorderedListOutlined />,
+    },
+    {
+      label: 'My Reservations',
+      key: 'reservations',
+      icon: <CalendarOutlined />,
     },
     {
       label: 'Log out',
