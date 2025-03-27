@@ -1,8 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { RouterProvider } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
-import router from './router'
+import enUS from 'antd/locale/en_US'
+import App from './App'
+import './index.css'
 
 ReactDOM.render(
   <React.StrictMode>
